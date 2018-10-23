@@ -25,10 +25,10 @@ SECRET_KEY = 'n+o%j+ly&-mkuj5*z0$(-8_2da(lm7f96i$l%vv^o#kd1%gqfw'
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
 import sys
 
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
-print(sys.path)
 
 # Application definition
 
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     # 注册DRF框架
     'rest_framework',
     # 注册子应用
-    'users.apps.UsersConfig'
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -139,6 +139,13 @@ CACHES = {
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
+    },
+    "verify": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     }
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
