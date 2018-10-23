@@ -189,3 +189,5 @@ REST_FRAMEWORK = {
     # 异常处理
     'EXCEPTION_HANDLER': 'meiduo_mall.utils.exceptions.exception_handler',
 }
+# 配置用户模型
+AUTH_USER_MODEL = 'users.User'
