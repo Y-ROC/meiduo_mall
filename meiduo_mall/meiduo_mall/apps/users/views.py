@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from celery_tasks.sms.tasks import send_sms_code
+from users.models import User
 
 
 class SMSCodeView(APIView):
@@ -30,3 +31,16 @@ class SMSCodeView(APIView):
         send_sms_code.delay(mobile, sms_code, 1)
         # 返回结果
         return Response({"message": "OK"})
+
+
+class UsernameCountView(APIView):
+    """
+    用户名数量
+    """
+    def get(self, request, username):
+        count = User.objects.filter(username=username).count()
+        data = {
+            'username': username,
+            'count': count,
+        }
+        return Response(data)
