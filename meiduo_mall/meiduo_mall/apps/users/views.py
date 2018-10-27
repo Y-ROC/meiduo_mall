@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 
 from celery_tasks.sms.tasks import send_sms_code
 from users.models import User
-from users.serializers import CreateUserSerializer
+from users.serializers import CreateUserSerializer, UserDetailSerializer
 
 
 class SMSCodeView(APIView):
