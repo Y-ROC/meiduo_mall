@@ -9,5 +9,8 @@ urlpatterns = [
     url(r'^mobiles/(?P<mobile>1[3-9]\d{9})/count/$', MobileCountView.as_view()),
     url(r'^users/$', UserView.as_view()),
     url(r'^authorizations/$', obtain_jwt_token),
+    url(r'^user/$', UserDetailView.as_view()),
+    url(r'^emails/$', EmailView.as_view()),
+    url(r'^emails/verification/', VerifyEmailView.as_view()),
 
 ]

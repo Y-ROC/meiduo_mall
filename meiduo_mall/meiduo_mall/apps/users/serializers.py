@@ -1,8 +1,11 @@
 import re
 
+from django.conf import settings
+from django.core.mail import send_mail
 from django_redis import get_redis_connection
 from rest_framework import serializers
 
+from celery_tasks.email.tasks import send_verify_email
 from users.models import User
 
 
@@ -85,3 +88,30 @@ class CreateUserSerializer(serializers.ModelSerializer):
         token = jwt_encode_handler(payload)
         user.token = token
         return user
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    """
+    用户详细信息序列化器
+    """
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'mobile', 'email', 'email_active')
+
+
+class EmailSerializer(serializers.ModelSerializer):
+    """邮箱信息序列化器"""
+
+    class Meta:
+        model = User
+        fields = ('email',)
+
+    def update(self, instance, validated_data):
+        instance.email = validated_data['email']
+        instance.save()
+        # 生成验证链接
+        verify_url = instance.generate_verify_email_url()
+        # 发送验证邮件
+        send_verify_email.delay(validated_data['email'], verify_url)
+        return instance

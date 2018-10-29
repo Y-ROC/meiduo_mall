@@ -1,5 +1,5 @@
 from django.conf import settings
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadData
 
 
 def generate_save_user_token(openid):
@@ -23,7 +23,7 @@ def check_save_user_token(access_token):
     serializer = Serializer(settings.SECRET_KEY)
     try:
         data = serializer.loads(access_token)
-    except Exception:
+    except BadData:
         return None
     else:
         return data.get('openid')
