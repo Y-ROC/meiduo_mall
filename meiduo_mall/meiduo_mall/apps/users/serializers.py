@@ -1,12 +1,9 @@
 import re
 
-from django.conf import settings
-from django.core.mail import send_mail
 from django_redis import get_redis_connection
 from rest_framework import serializers
-
 from celery_tasks.email.tasks import send_verify_email
-from users.models import User
+from users.models import User, Address
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -115,3 +112,38 @@ class EmailSerializer(serializers.ModelSerializer):
         # 发送验证邮件
         send_verify_email.delay(validated_data['email'], verify_url)
         return instance
+
+
+class UserAddressSerializer(serializers.ModelSerializer):
+    """地址信息序列化器"""
+    # 序列化输出
+    province = serializers.StringRelatedField(label='省', read_only=True)
+    city = serializers.StringRelatedField(label='市', read_only=True)
+    district = serializers.StringRelatedField(label='区', read_only=True)
+    # 序列化输入
+    province_id = serializers.IntegerField(label='省', write_only=True)
+    city_id = serializers.IntegerField(label='市', write_only=True)
+    district_id = serializers.IntegerField(label='区', write_only=True)
+
+    class Meta:
+        model = Address
+        exclude = ('user', 'is_deleted', 'update_time', 'create_time')
+
+    def validate_mobile(self, value):
+        """验证手机号码"""
+        if not re.match(r"1[1-9]\d{9}", value):
+            raise serializers.ValidationError("手机号码格式错误")
+        return value
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+
+
+class AddressTitleSerializer(serializers.ModelSerializer):
+    """
+    地址标题
+    """
+    class Meta:
+        model = Address
+        fields = ('title',)

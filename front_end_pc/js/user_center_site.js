@@ -48,7 +48,7 @@ var vm = new Vue({
                 responseType: 'json'
             })
             .then(response => {
-                this.addresses = response.data;
+                this.addresses = response.data.addresses;
                 this.limit = response.data.limit;
                 this.default_address_id = response.data.default_address_id;
             })

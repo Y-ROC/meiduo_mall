@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     # 注册子应用
     'users.apps.UsersConfig',
     'oauth.apps.OauthConfig',
+    'areas.apps.AreasConfig'
 ]
 
 MIDDLEWARE = [
@@ -239,3 +240,11 @@ EMAIL_HOST_USER = 'y__roc@163.com'
 EMAIL_HOST_PASSWORD = 'meiduo1'
 # 收件人看到的发件人
 EMAIL_FROM = '美多商城<y__roc@163.com>'
+
+# DRF扩展
+REST_FRAMEWORK_EXTENSIONS = {
+    # 缓存时间
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 60,
+    # 缓存存储
+    'DEFAULT_USE_CACHE': 'default',
+}

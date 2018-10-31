@@ -1,4 +1,5 @@
 from django.conf.urls import url
+from rest_framework import routers
 from rest_framework_jwt.views import obtain_jwt_token
 
 from users.views import *
@@ -12,5 +13,12 @@ urlpatterns = [
     url(r'^user/$', UserDetailView.as_view()),
     url(r'^emails/$', EmailView.as_view()),
     url(r'^emails/verification/', VerifyEmailView.as_view()),
+    # url(r'^addresses/$', AddressView.as_view()),
+    # url(r'^addresses/(?P<pk>\d+)/$', AddressView.as_view()),
+    # url(r'^addresses/(?P<pk>\d+)/status/$', AddressView.as_view()),
 
 ]
+router = routers.DefaultRouter()
+router.register(r'addresses', AddressViewSet, base_name='addresses')
+
+urlpatterns += router.urls
