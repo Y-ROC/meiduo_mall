@@ -7,7 +7,7 @@ if not os.getenv('DJANGO_SETTINGS_MODULE'):
     os.environ['DJANGO_SETTINGS_MODULE'] = 'meiduo_mall.settings.dev'
 
 # 创建celery应用
-app = Celery('meiduo', broker='redis://localhost:6379')
+app = Celery('meiduo')
 
 # 导入celery配置
 app.config_from_object('celery_tasks.config')
