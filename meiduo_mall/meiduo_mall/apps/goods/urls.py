@@ -4,8 +4,8 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 urlpatterns = [
-    url(r'^categories/(?P<category_id>\d+)/$', views.SKUListView.as_view()),
-    url(r'^categories/(?P<category_id>\d+)/skus/$', views.SKUListView.as_view()),
+    url(r'^categories/(?P<pk>\d+)/$', views.GoodCategorieView.as_view()),
+    url(r'^categories/(?P<pk>\d+)/skus/$', views.SKUListView.as_view()),
 
 ]
 
