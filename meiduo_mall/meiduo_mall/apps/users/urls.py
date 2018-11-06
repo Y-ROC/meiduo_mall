@@ -16,6 +16,7 @@ urlpatterns = [
     # url(r'^addresses/$', AddressView.as_view()),
     # url(r'^addresses/(?P<pk>\d+)/$', AddressView.as_view()),
     # url(r'^addresses/(?P<pk>\d+)/status/$', AddressView.as_view()),
+    url(r'^browse_histories/$', UserBrowsingHistoryView.as_view()),
 
 ]
 router = routers.DefaultRouter()
