@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from QQLoginTool.QQtool import OAuthQQ
 from rest_framework_jwt.settings import api_settings
 
+from carts.utils import merge_cart_cookie_to_redis
 from oauth.models import OAuthQQUser
 from oauth.serializers import QQAuthUserSerializer
 from oauth.utils import generate_save_user_token
@@ -68,7 +69,8 @@ class QQAuthUserView(GenericAPIView):
                 'user_id': user.id,
                 'username': user.username
             })
-
+            # 合并购物车
+            response = merge_cart_cookie_to_redis(request, user, response)
             return response
 
     def post(self, request):
@@ -92,5 +94,6 @@ class QQAuthUserView(GenericAPIView):
             'user_id': user.id,
             'username': user.username
         })
-
+        # 合并购物车
+        response = merge_cart_cookie_to_redis(request, user, response)
         return response
