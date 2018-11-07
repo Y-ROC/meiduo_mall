@@ -118,3 +118,52 @@ class CartView(APIView):
 
         serializer = CartSKUSerializer(skus, many=True)
         return Response(serializer.data)
+
+    def put(self, request):
+        """
+        修改购物车数据
+        """
+        serializer = CartSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        sku_id = serializer.validated_data.get('sku_id')
+        count = serializer.validated_data.get('count')
+        selected = serializer.validated_data.get('selected')
+
+        # 尝试对请求的用户进行验证
+        try:
+            user = request.user
+        except Exception:
+            # 验证失败，用户未登录
+            user = None
+
+        if user is not None and user.is_authenticated:
+            # 用户已登录，在redis中保存
+            redis_conn = get_redis_connection('cart')
+            pl = redis_conn.pipeline()
+            pl.hset('cart_%s' % user.id, sku_id, count)
+            if selected:
+                pl.sadd('cart_selected_%s' % user.id, sku_id)
+            else:
+                pl.srem('cart_selected_%s' % user.id, sku_id)
+            pl.execute()
+            return Response(serializer.data)
+        else:
+            # 用户未登录，在cookie中保存
+            # 使用pickle序列化购物车数据，pickle操作的是bytes类型
+            cart = request.COOKIES.get('cart')
+            if cart is not None:
+                cart = pickle.loads(base64.b64decode(cart.encode()))
+            else:
+                cart = {}
+
+            cart[sku_id] = {
+                'count': count,
+                'selected': selected
+            }
+            cookie_cart = base64.b64encode(pickle.dumps(cart)).decode()
+
+            response = Response(serializer.data)
+            # 设置购物车的cookie
+            # 需要设置有效期，否则是临时cookie
+            response.set_cookie('cart', cookie_cart, max_age=constants.CART_COOKIE_EXPIRES)
+            return response
