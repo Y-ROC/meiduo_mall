@@ -24,7 +24,7 @@ var vm = new Vue({
                 responseType: 'json'
             })
             .then(response => {
-                this.addresses = response.data;
+                this.addresses = response.data.addresses;
                 this.nowsite = response.data.default_address_id;
             })
             .catch(error => {

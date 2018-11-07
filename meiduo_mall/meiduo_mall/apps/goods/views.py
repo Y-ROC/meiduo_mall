@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 
 from goods.models import SKU, GoodsCategory
 from goods.serializers import SKUSerializer, SKUIndexSerializer
+from goods.utils import GoodsPage
 
 
 class GoodCategorieView(APIView):
@@ -29,6 +30,8 @@ class SKUListView(ListAPIView):
     sku列表数据
     """
     serializer_class = SKUSerializer
+    #  设置分页
+    pagination_class = GoodsPage
     filter_backends = (OrderingFilter,)
     ordering_fields = ('create_time', 'price', 'sales')
 

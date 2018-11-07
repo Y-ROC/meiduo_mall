@@ -213,7 +213,7 @@ class AddressViewSet(CreateModelMixin, UpdateModelMixin, GenericViewSet):
         request.user.save()
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
-    # put /addresses/pk/title/
+    #put /addresses/pk/title/
     # 需要请求体参数 title
     @action(methods=['put'], detail=True)
     def title(self, request, pk=None):

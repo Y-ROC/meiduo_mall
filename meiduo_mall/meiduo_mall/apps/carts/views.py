@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from carts.serialziers import CartSerializer, CartSKUSerializer, CartDeleteSerializer, CartSelectAllSerializer
+from carts.serializers import CartSerializer, CartSKUSerializer, CartDeleteSerializer, CartSelectAllSerializer
 from goods.models import SKU
 from meiduo_mall import constants
 

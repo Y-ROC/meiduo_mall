@@ -24,5 +24,6 @@ urlpatterns = [
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^', include('goods.urls')),
     url(r'^', include('carts.urls')),
+    url(r'^', include('orders.urls')),
 
 ]

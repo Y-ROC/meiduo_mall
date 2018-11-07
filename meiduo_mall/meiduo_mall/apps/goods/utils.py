@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+from rest_framework.pagination import PageNumberPagination
+
 from .models import GoodsChannel
 
 
@@ -42,3 +44,11 @@ def get_categories():
                 cat2.sub_cats.append(cat3)
             categories[group_id]['sub_cats'].append(cat2)
     return categories
+
+
+class GoodsPage(PageNumberPagination):
+
+    # page_query_param = 'pa'
+    page_size_query_param = 'page_size'
+    # page_size =  2
+    max_page_size = 10
