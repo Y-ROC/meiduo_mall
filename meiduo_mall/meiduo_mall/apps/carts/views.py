@@ -6,7 +6,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from carts.serialziers import CartSerializer
+from carts.serialziers import CartSerializer, CartSKUSerializer
+from goods.models import SKU
 from meiduo_mall import constants
 
 
@@ -14,6 +15,7 @@ class CartView(APIView):
     """
     购物车
     """
+
     def perform_authentication(self, request):
         """
         重写父类的用户验证方法，不在进入视图前就检查JWT
@@ -79,3 +81,40 @@ class CartView(APIView):
             # 需要设置有效期，否则是临时cookie
             response.set_cookie('cart', cookie_cart, max_age=constants.CART_COOKIE_EXPIRES)
             return response
+
+    def get(self, request):
+        """
+        获取购物车
+        """
+        try:
+            user = request.user
+        except Exception:
+            user = None
+
+        if user is not None and user.is_authenticated:
+            # 用户已登录，从redis中读取
+            redis_conn = get_redis_connection('cart')
+            redis_cart = redis_conn.hgetall('cart_%s' % user.id)
+            redis_cart_selected = redis_conn.smembers('cart_selected_%s' % user.id)
+            cart = {}
+            for sku_id, count in redis_cart.items():
+                cart[int(sku_id)] = {
+                    'count': int(count),
+                    'selected': sku_id in redis_cart_selected
+                }
+        else:
+            # 用户未登录，从cookie中读取
+            cart = request.COOKIES.get('cart')
+            if cart is not None:
+                cart = pickle.loads(base64.b64decode(cart.encode()))
+            else:
+                cart = {}
+
+        # 遍历处理购物车数据
+        skus = SKU.objects.filter(id__in=cart.keys())
+        for sku in skus:
+            sku.count = cart[sku.id]['count']
+            sku.selected = cart[sku.id]['selected']
+
+        serializer = CartSKUSerializer(skus, many=True)
+        return Response(serializer.data)
