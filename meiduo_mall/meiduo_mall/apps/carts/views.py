@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from carts.serialziers import CartSerializer, CartSKUSerializer
+from carts.serialziers import CartSerializer, CartSKUSerializer, CartDeleteSerializer
 from goods.models import SKU
 from meiduo_mall import constants
 
@@ -166,4 +166,42 @@ class CartView(APIView):
             # 设置购物车的cookie
             # 需要设置有效期，否则是临时cookie
             response.set_cookie('cart', cookie_cart, max_age=constants.CART_COOKIE_EXPIRES)
+            return response
+
+    def delete(self, request):
+        """
+        删除购物车数据
+        """
+        serializer = CartDeleteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        sku_id = serializer.validated_data['sku_id']
+
+        try:
+            user = request.user
+        except Exception:
+            # 验证失败，用户未登录
+            user = None
+
+        if user is not None and user.is_authenticated:
+            # 用户已登录，在redis中保存
+            redis_conn = get_redis_connection('cart')
+            pl = redis_conn.pipeline()
+            pl.hdel('cart_%s' % user.id, sku_id)
+            pl.srem('cart_selected_%s' % user.id, sku_id)
+            pl.execute()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            # 用户未登录，在cookie中保存
+            response = Response(status=status.HTTP_204_NO_CONTENT)
+
+            # 使用pickle序列化购物车数据，pickle操作的是bytes类型
+            cart = request.COOKIES.get('cart')
+            if cart is not None:
+                cart = pickle.loads(base64.b64decode(cart.encode()))
+                if sku_id in cart:
+                    del cart[sku_id]
+                    cookie_cart = base64.b64encode(pickle.dumps(cart)).decode()
+                    # 设置购物车的cookie
+                    # 需要设置有效期，否则是临时cookie
+                    response.set_cookie('cart', cookie_cart, max_age=constants.CART_COOKIE_EXPIRES)
             return response
